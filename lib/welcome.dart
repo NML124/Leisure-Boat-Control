@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:leisure_boat/intro_screens/intro_page_1.dart';
+import 'package:leisure_boat/intro_screens/intro_page_2.dart';
+import 'package:leisure_boat/intro_screens/intro_page_3.dart';
+import 'package:leisure_boat/login_page.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class Welcome extends StatefulWidget {
   @override
@@ -7,6 +12,7 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> {
   PageController _pageController = PageController();
+  bool onLastPage = false;
 
   @override
   Widget build(BuildContext context) {
@@ -15,18 +21,53 @@ class _WelcomeState extends State<Welcome> {
       children: [
         PageView(
           controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              onLastPage = (index == 2);
+            });
+          },
           children: [
-            Container(
-              color: Colors.blue,
-            ),
-            Container(
-              color: Colors.yellow,
-            ),
-            Container(
-              color: Colors.green,
-            ),
+            IntroPage1(),
+            IntroPage2(),
+            IntroPage3(),
           ],
         ),
+        Container(
+            alignment: Alignment(0, 0.75),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                //skip
+                GestureDetector(
+                    onTap: () {
+                      _pageController.jumpToPage(2);
+                    },
+                    child: Text('Skip')),
+                SmoothPageIndicator(
+                  controller: _pageController,
+                  count: 3,
+                  effect: const WormEffect(
+                      dotHeight: 16, dotWidth: 16, type: WormType.thin),
+                ),
+                onLastPage
+                    ? GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginPage()));
+                        },
+                        child: Text("Let's go!"))
+                    : GestureDetector(
+                        onTap: () {
+                          _pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.easeIn,
+                          );
+                        },
+                        child: Text("Next"))
+              ],
+            ))
       ],
     ));
   }
