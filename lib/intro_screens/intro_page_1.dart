@@ -11,6 +11,7 @@ class IntroPage1 extends StatelessWidget {
           child: Column(
         children: [
           Text("Visualize our boat"),
+          Image.asset("assets/images/pic.png"),
         ],
       )),
     );
