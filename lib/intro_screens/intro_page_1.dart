@@ -6,12 +6,23 @@ class IntroPage1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.blue,
+      color: const Color.fromARGB(255, 255, 255, 255),
       child: Center(
           child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Visualize our boat"),
-          Image.asset("assets/images/pic.png"),
+          Text(
+            "Visualize our boat",
+            style: TextStyle(fontSize: 25),
+            textAlign: TextAlign.center,
+          ),
+          Container(
+            height: 300,
+            child: Image.asset(
+              "assets/images/login_page_GPS.gif",
+              fit: BoxFit.cover,
+            ),
+          )
         ],
       )),
     );

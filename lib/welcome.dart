@@ -33,21 +33,29 @@ class _WelcomeState extends State<Welcome> {
           ],
         ),
         Container(
-            alignment: Alignment(0, 0.75),
+            alignment: Alignment(0.5, 0.75),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 //skip
                 GestureDetector(
-                    onTap: () {
-                      _pageController.jumpToPage(2);
-                    },
-                    child: Text('Skip')),
+                  onTap: () {
+                    _pageController.jumpToPage(2);
+                  },
+                  child: Text(
+                    'Skip',
+                    style: TextStyle(fontSize: 25),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
                 SmoothPageIndicator(
                   controller: _pageController,
                   count: 3,
                   effect: const WormEffect(
-                      dotHeight: 16, dotWidth: 16, type: WormType.thin),
+                    dotHeight: 15,
+                    dotWidth: 15,
+                    type: WormType.thin,
+                  ),
                 ),
                 onLastPage
                     ? GestureDetector(
@@ -57,7 +65,12 @@ class _WelcomeState extends State<Welcome> {
                               MaterialPageRoute(
                                   builder: (context) => LoginPage()));
                         },
-                        child: Text("Let's go!"))
+                        child: Text(
+                          "Let's go!",
+                          style: TextStyle(fontSize: 25),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
                     : GestureDetector(
                         onTap: () {
                           _pageController.nextPage(
@@ -65,7 +78,12 @@ class _WelcomeState extends State<Welcome> {
                             curve: Curves.easeIn,
                           );
                         },
-                        child: Text("Next"))
+                        child: Text(
+                          "Next",
+                          style: TextStyle(fontSize: 25),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
               ],
             ))
       ],
