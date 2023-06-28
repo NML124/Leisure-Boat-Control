@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1056116937101-0b21021ha0dsmakfbrhcv9imikbgph8h.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1056116937101-0b21021ha0dsmakfbrhcv9imikbgph8h</string>
+	<key>API_KEY</key>
+	<string>AIzaSyB1T-XCTA9cUqDhcfuzZw9_yKOjW5-xapA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1056116937101</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.leisureBoat.RunnerTests</string>
+	<key>PROJECT_ID</key>
+	<string>leisure-boat-controller</string>
+	<key>STORAGE_BUCKET</key>
+	<string>leisure-boat-controller.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1056116937101:ios:189fca236e49b4ce14adc4</string>
+</dict>
+</plist>
