@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:leisure_boat/intro_screens/intro_page_1.dart';
-import 'package:leisure_boat/intro_screens/intro_page_2.dart';
-import 'package:leisure_boat/intro_screens/intro_page_3.dart';
-import 'package:leisure_boat/login_page.dart';
+import '../intro_screens/intro_page_1.dart';
+import '../intro_screens/intro_page_2.dart';
+import '../intro_screens/intro_page_3.dart';
+import 'authentificate_screen.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class Welcome extends StatefulWidget {
+  final routeName = "/welcome";
+
   @override
   State<StatefulWidget> createState() => _WelcomeState();
 }
@@ -63,7 +65,8 @@ class _WelcomeState extends State<Welcome> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => LoginPage()));
+                                  builder: (context) =>
+                                      AuthentificateScreen()));
                         },
                         child: Text(
                           "Let's go!",

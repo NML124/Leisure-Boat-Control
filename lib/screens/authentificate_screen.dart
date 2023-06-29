@@ -1,17 +1,18 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:leisure_boat/providers/auth.dart';
+import 'package:leisure_boat/screens/home_screen.dart';
+import '../providers/auth.dart';
 import 'package:provider/provider.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class AuthentificateScreen extends StatefulWidget {
+  const AuthentificateScreen({super.key});
   final routeName = "/login";
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<AuthentificateScreen> createState() => _AuthentificateScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _AuthentificateScreenState extends State<AuthentificateScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   var errorMessage = '';
@@ -44,7 +45,9 @@ class _LoginPageState extends State<LoginPage> {
         emailController.text,
         passwordController.text,
       );
-      Navigator.pushReplacementNamed(context, "");
+      Navigator.pushReplacementNamed(context, Home().routeName, arguments: {
+        'email': emailController.text,
+      });
     } on HttpException catch (error) {
       errorMessage = "Authentification failed";
       if (error.toString().contains("EMAIL_NOT_FOUND")) {
