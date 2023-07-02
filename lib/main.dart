@@ -28,9 +28,9 @@ class MyApp extends StatelessWidget {
                 seedColor: Color.fromARGB(255, 103, 58, 183)),
             useMaterial3: true,
           ),
-          home: Auth().isAuthenticated ? const Home() : Welcome(),
+          home: Auth().isAuthenticated ? Home() : Welcome(),
           routes: {
-            const Home().routeName: (_) => const Home(),
+            Home().routeName: (_) => Home(),
             Welcome().routeName: (_) => Welcome(),
             const AuthentificateScreen().routeName: (_) =>
                 const AuthentificateScreen(),

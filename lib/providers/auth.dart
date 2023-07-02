@@ -4,9 +4,9 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
 class Auth with ChangeNotifier {
-  late String _token;
-  late DateTime _expiryDate;
-  late String _userId;
+  late String _token = "l";
+  late DateTime _expiryDate = DateTime.now();
+  late String _userId = "l";
 
   bool get isAuthenticated {
     return token != null;
