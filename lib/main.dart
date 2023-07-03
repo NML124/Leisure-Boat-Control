@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:leisure_boat/providers/auth.dart';
 import 'package:leisure_boat/screens/authentificate_screen.dart';
@@ -5,7 +6,9 @@ import 'package:leisure_boat/screens/home_screen.dart';
 import 'package:leisure_boat/screens/welcome.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
