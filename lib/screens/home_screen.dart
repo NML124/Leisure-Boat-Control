@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_database/firebase_database.dart';
 
 import 'package:flutter/material.dart';
@@ -20,17 +22,31 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String selectedBoat = "";
-  var boats;
+  var boats = [];
   var ports;
   List<Marker> _markers = [];
   final DatabaseReference dbRef = FirebaseDatabase.instance.ref();
   FirebaseDatabase database = FirebaseDatabase.instance;
   LatLng? _pickedLocation = null;
+  BitmapDescriptor boatMarkerIcon = BitmapDescriptor.defaultMarker;
 
   @override
   void initState() {
     super.initState();
+    addIcon();
     _databaseListeners();
+  }
+
+  void addIcon() {
+    BitmapDescriptor.fromAssetImage(
+            const ImageConfiguration(), "assets/images/boatMarker.png")
+        .then(
+      (icon) {
+        setState(() {
+          boatMarkerIcon = icon;
+        });
+      },
+    );
   }
 
   void _databaseListeners() {
@@ -68,6 +84,7 @@ class _HomeState extends State<Home> {
         });
       });
       boats = temporaryboats;
+      initMarker();
     });
 
     dbRef.child("Ports").onValue.listen((event) {
@@ -90,10 +107,10 @@ class _HomeState extends State<Home> {
             "Location": locationPort,
             "Name": name,
           });
-          initMarker();
         });
       });
       ports = temporaryPorts;
+      initMarker();
     });
   }
 
@@ -105,15 +122,19 @@ class _HomeState extends State<Home> {
         infoWindow: InfoWindow(
           title: port["Name"],
         ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
       ));
     }
+    log(boats.length.toString());
     for (var boat in boats) {
+      log(boats[0]["ActualPosition"].latitude.toString());
       _markers.add(Marker(
         markerId: MarkerId(boat["id"]),
-        position: boat["Location"],
+        position: boat["ActualPosition"],
         infoWindow: InfoWindow(
           title: boat["Name"],
         ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
       ));
     }
   }
