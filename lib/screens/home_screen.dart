@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ffi';
 
 import 'package:firebase_database/firebase_database.dart';
@@ -24,10 +25,45 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String selectedBoat = "";
-  Map boats = {};
+  var boats;
+  final DatabaseReference dbRef = FirebaseDatabase.instance.ref();
   FirebaseDatabase database = FirebaseDatabase.instance;
-  DatabaseReference ref = FirebaseDatabase.instance.ref("boats");
   LatLng? _pickedLocation = null;
+
+  @override
+  void initState() {
+    super.initState();
+    _activeListeners();
+  }
+
+  void _activeListeners() {
+    dbRef.child("Boats").onValue.listen((event) {
+      final map = event.snapshot.children;
+      var temporaryboats = [];
+      map.forEach((child) {
+        var location = child.child("ActualPosition").value;
+        var target = child.child("Target").value;
+        var speed = child.child("ActualSpeed").value;
+        var name = child.child("Name").value;
+        var isAutomatic = child.child("IsAutomatic").value;
+        var id = child.key.toString();
+        List<String> latlng = location.toString().split(",");
+        LatLng locationBoat =
+            LatLng(double.parse(latlng[0]), double.parse(latlng[1]));
+        setState(() {
+          temporaryboats.add({
+            "id": id,
+            "ActualPosition": locationBoat,
+            "Target": target,
+            "Speed": speed,
+            "Name": name,
+            "Automatic": isAutomatic
+          });
+        });
+      });
+      boats = temporaryboats;
+    });
+  }
 
   Future<void> _modifyBoat(Boat boat,
       {LatLng? target,
@@ -48,10 +84,23 @@ class _HomeState extends State<Home> {
   }
 
   Widget map(boats) {
-    return Stack(
-      children: [
-        Text("Louis de Viniac"),
-      ],
+    return GoogleMap(
+      initialCameraPosition: CameraPosition(
+        target: LatLng(
+          widget.initialLocation.latitude,
+          widget.initialLocation.longitude,
+        ),
+        zoom: 16,
+      ),
+      onTap: widget.isSelecting ? _selectedLocation : null,
+      markers: _pickedLocation == null
+          ? {}
+          : {
+              Marker(
+                markerId: MarkerId("m1"),
+                position: _pickedLocation!,
+              ),
+            },
     );
   }
 
@@ -63,40 +112,20 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    DatabaseReference db_ref = FirebaseDatabase.instance.ref().child('boats');
     final routeArgs =
         ModalRoute.of(context)!.settings.arguments as Map<String, String>;
     final email = routeArgs['email'];
 
     return Scaffold(
-      body: Stack(
-        children: [
-          FirebaseAnimatedList(
-              query: ref,
-              itemBuilder: (context, snapshot, animation, index) {
-                print("Bouh");
-                return map(boats);
-              }),
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: LatLng(
-                widget.initialLocation.latitude,
-                widget.initialLocation.longitude,
-              ),
-              zoom: 16,
-            ),
-            onTap: widget.isSelecting ? _selectedLocation : null,
-            markers: _pickedLocation == null
-                ? {}
-                : {
-                    Marker(
-                      markerId: MarkerId("m1"),
-                      position: _pickedLocation!,
-                    ),
-                  },
-          ),
-        ],
-      ),
-    );
+        body: Center(
+            child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          onPressed: _activeListeners,
+          child: Text("Recharger"),
+        ),
+      ],
+    )));
   }
 }
