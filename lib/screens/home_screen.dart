@@ -1,13 +1,8 @@
-import 'dart:developer';
-import 'dart:ffi';
-
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/place.dart';
-
-import '../models/boat.dart';
 
 class Home extends StatefulWidget {
   final PlaceLocation initialLocation;
@@ -15,7 +10,7 @@ class Home extends StatefulWidget {
 
   Home({
     this.initialLocation =
-        const PlaceLocation(latitude: -4.3515904, longitude: 15.2993792),
+        const PlaceLocation(latitude: -2.0115168, longitude: 29.1144439),
     this.isSelecting = true,
   });
   final routeName = '/home';
@@ -26,6 +21,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String selectedBoat = "";
   var boats;
+  var ports;
+  List<Marker> _markers = [];
   final DatabaseReference dbRef = FirebaseDatabase.instance.ref();
   FirebaseDatabase database = FirebaseDatabase.instance;
   LatLng? _pickedLocation = null;
@@ -33,28 +30,37 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _activeListeners();
+    _databaseListeners();
   }
 
-  void _activeListeners() {
+  void _databaseListeners() {
     dbRef.child("Boats").onValue.listen((event) {
       final map = event.snapshot.children;
       var temporaryboats = [];
+      List<String> latlng;
+
       map.forEach((child) {
         var location = child.child("ActualPosition").value;
         var target = child.child("Target").value;
         var speed = child.child("ActualSpeed").value;
         var name = child.child("Name").value;
-        var isAutomatic = child.child("IsAutomatic").value;
+        var isAutomatic =
+            bool.parse(child.child("IsAutomatic").value.toString());
         var id = child.key.toString();
-        List<String> latlng = location.toString().split(",");
+
+        latlng = location.toString().split(",");
         LatLng locationBoat =
             LatLng(double.parse(latlng[0]), double.parse(latlng[1]));
+
+        latlng = target.toString().split(",");
+        LatLng targetBoat =
+            LatLng(double.parse(latlng[0]), double.parse(latlng[1]));
+
         setState(() {
           temporaryboats.add({
             "id": id,
             "ActualPosition": locationBoat,
-            "Target": target,
+            "Target": targetBoat,
             "Speed": speed,
             "Name": name,
             "Automatic": isAutomatic
@@ -63,45 +69,53 @@ class _HomeState extends State<Home> {
       });
       boats = temporaryboats;
     });
-  }
 
-  Future<void> _modifyBoat(Boat boat,
-      {LatLng? target,
-      Double? desiredSpeed,
-      Double? desiredOrientation,
-      Bool? isAutomatic}) async {
-    DatabaseReference ref =
-        FirebaseDatabase.instance.ref("boats/$selectedBoat");
-    await ref.update({
-      "desiredSpeed": desiredSpeed == null ? boat.speed : desiredSpeed,
-      "desiredOrientation":
-          desiredOrientation == null ? boat.orientation : desiredOrientation,
-      "automatic": isAutomatic == null ? boat.isAutomatic : isAutomatic,
-      "target": target == null
-          ? (boat.target!.latitude, boat.target!.longitude)
-          : (target.latitude, target.longitude),
+    dbRef.child("Ports").onValue.listen((event) {
+      final map = event.snapshot.children;
+      var temporaryPorts = [];
+      List<String> latlng;
+
+      map.forEach((child) {
+        var location = child.child("Location").value;
+        var name = child.child("Name").value;
+        var id = child.key.toString();
+
+        latlng = location.toString().split(",");
+        LatLng locationPort =
+            LatLng(double.parse(latlng[0]), double.parse(latlng[1]));
+
+        setState(() {
+          temporaryPorts.add({
+            "id": id,
+            "Location": locationPort,
+            "Name": name,
+          });
+          initMarker();
+        });
+      });
+      ports = temporaryPorts;
     });
   }
 
-  Widget map(boats) {
-    return GoogleMap(
-      initialCameraPosition: CameraPosition(
-        target: LatLng(
-          widget.initialLocation.latitude,
-          widget.initialLocation.longitude,
+  void initMarker() {
+    for (var port in ports) {
+      _markers.add(Marker(
+        markerId: MarkerId(port["id"]),
+        position: port["Location"],
+        infoWindow: InfoWindow(
+          title: port["Name"],
         ),
-        zoom: 16,
-      ),
-      onTap: widget.isSelecting ? _selectedLocation : null,
-      markers: _pickedLocation == null
-          ? {}
-          : {
-              Marker(
-                markerId: MarkerId("m1"),
-                position: _pickedLocation!,
-              ),
-            },
-    );
+      ));
+    }
+    for (var boat in boats) {
+      _markers.add(Marker(
+        markerId: MarkerId(boat["id"]),
+        position: boat["Location"],
+        infoWindow: InfoWindow(
+          title: boat["Name"],
+        ),
+      ));
+    }
   }
 
   void _selectedLocation(LatLng position) {
@@ -117,15 +131,16 @@ class _HomeState extends State<Home> {
     final email = routeArgs['email'];
 
     return Scaffold(
-        body: Center(
-            child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: _activeListeners,
-          child: Text("Recharger"),
+        body: GoogleMap(
+      initialCameraPosition: CameraPosition(
+        target: LatLng(
+          widget.initialLocation.latitude,
+          widget.initialLocation.longitude,
         ),
-      ],
-    )));
+        zoom: 10,
+      ),
+      onTap: widget.isSelecting ? _selectedLocation : null,
+      markers: _markers.toSet(),
+    ));
   }
 }
