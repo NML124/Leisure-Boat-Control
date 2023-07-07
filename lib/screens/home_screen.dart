@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:firebase_database/firebase_database.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/place.dart';
 
@@ -23,30 +24,19 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String selectedBoat = "";
   var boats = [];
-  var ports;
-  List<Marker> _markers = [];
+  var ports = [];
+  List<Marker> _markers = [
+    Marker(markerId: MarkerId("Origin"), position: LatLng(0, 0), visible: false)
+  ];
   final DatabaseReference dbRef = FirebaseDatabase.instance.ref();
   FirebaseDatabase database = FirebaseDatabase.instance;
-  LatLng? _pickedLocation = null;
   BitmapDescriptor boatMarkerIcon = BitmapDescriptor.defaultMarker;
+  var step = 10.0;
 
   @override
   void initState() {
     super.initState();
-    addIcon();
     _databaseListeners();
-  }
-
-  void addIcon() {
-    BitmapDescriptor.fromAssetImage(
-            const ImageConfiguration(), "assets/images/boatMarker.png")
-        .then(
-      (icon) {
-        setState(() {
-          boatMarkerIcon = icon;
-        });
-      },
-    );
   }
 
   void _databaseListeners() {
@@ -58,7 +48,13 @@ class _HomeState extends State<Home> {
       map.forEach((child) {
         var location = child.child("ActualPosition").value;
         var target = child.child("Target").value;
-        var speed = child.child("ActualSpeed").value;
+        var speed = double.parse(child.child("ActualSpeed").value.toString());
+        var orientation =
+            double.parse(child.child("Orientation").value.toString());
+        var desiredSpeed =
+            double.parse(child.child("DesiredSpeed").value.toString());
+        var desiredOrientation =
+            double.parse(child.child("DesiredOrientation").value.toString());
         var name = child.child("Name").value;
         var isAutomatic =
             bool.parse(child.child("IsAutomatic").value.toString());
@@ -77,9 +73,10 @@ class _HomeState extends State<Home> {
             "id": id,
             "ActualPosition": locationBoat,
             "Target": targetBoat,
+            "Orientation": orientation,
             "Speed": speed,
             "Name": name,
-            "Automatic": isAutomatic
+            "Automatic": isAutomatic,
           });
         });
       });
@@ -115,6 +112,7 @@ class _HomeState extends State<Home> {
   }
 
   void initMarker() {
+    log("Taille :" + ports.length.toString());
     for (var port in ports) {
       _markers.add(Marker(
         markerId: MarkerId(port["id"]),
@@ -125,9 +123,7 @@ class _HomeState extends State<Home> {
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
       ));
     }
-    log(boats.length.toString());
     for (var boat in boats) {
-      log(boats[0]["ActualPosition"].latitude.toString());
       _markers.add(Marker(
         markerId: MarkerId(boat["id"]),
         position: boat["ActualPosition"],
@@ -139,18 +135,8 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void _selectedLocation(LatLng position) {
-    setState(() {
-      _pickedLocation = position;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final routeArgs =
-        ModalRoute.of(context)!.settings.arguments as Map<String, String>;
-    final email = routeArgs['email'];
-
     return Scaffold(
         body: GoogleMap(
       initialCameraPosition: CameraPosition(
@@ -160,7 +146,6 @@ class _HomeState extends State<Home> {
         ),
         zoom: 10,
       ),
-      onTap: widget.isSelecting ? _selectedLocation : null,
       markers: _markers.toSet(),
     ));
   }

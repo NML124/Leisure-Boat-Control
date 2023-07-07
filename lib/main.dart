@@ -31,7 +31,20 @@ class MyApp extends StatelessWidget {
                 seedColor: Color.fromARGB(255, 103, 58, 183)),
             useMaterial3: true,
           ),
-          home: Auth().isAuthenticated ? Home() : Welcome(),
+          home: Auth().isAuthenticated
+              ? Home()
+              : FutureBuilder(
+                  future: Auth().tryAutoLogin(),
+                  builder: (ctx, authResultSnapshot) =>
+                      authResultSnapshot.connectionState ==
+                              ConnectionState.waiting
+                          ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : authResultSnapshot.data == false
+                              ? AuthentificateScreen()
+                              : Home(),
+                ),
           routes: {
             Home().routeName: (_) => Home(),
             Welcome().routeName: (_) => Welcome(),
