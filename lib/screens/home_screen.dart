@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:firebase_database/firebase_database.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/place.dart';
 
@@ -74,7 +73,9 @@ class _HomeState extends State<Home> {
             "ActualPosition": locationBoat,
             "Target": targetBoat,
             "Orientation": orientation,
+            "DesiredOrientation": desiredOrientation,
             "Speed": speed,
+            "DesiredSpeed": desiredSpeed,
             "Name": name,
             "Automatic": isAutomatic,
           });
@@ -112,7 +113,6 @@ class _HomeState extends State<Home> {
   }
 
   void initMarker() {
-    log("Taille :" + ports.length.toString());
     for (var port in ports) {
       _markers.add(Marker(
         markerId: MarkerId(port["id"]),
