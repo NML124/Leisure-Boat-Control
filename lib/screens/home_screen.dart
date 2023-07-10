@@ -21,6 +21,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  var width;
   String selectedBoat = "";
   var boats = [];
   var ports = [];
@@ -30,6 +31,7 @@ class _HomeState extends State<Home> {
   final DatabaseReference dbRef = FirebaseDatabase.instance.ref();
   FirebaseDatabase database = FirebaseDatabase.instance;
   BitmapDescriptor boatMarkerIcon = BitmapDescriptor.defaultMarker;
+
   var step = 10.0;
 
   @override
@@ -131,12 +133,83 @@ class _HomeState extends State<Home> {
           title: boat["Name"],
         ),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+        onTap: () {
+          showModalBottomSheet(
+              context: context,
+              builder: (ctx) {
+                return Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    width: width,
+                    child: Column(
+                      children: [
+                        Text(
+                          boat["Name"],
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text("Boat DATA",
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.bold)),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              "Speed : ${boat['Speed']} rpm",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            Text("Orientation : ${boat["Orientation"]}°",
+                                style: TextStyle(fontSize: 15)),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Automatic :",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            Switch(
+                                value: boat['Automatic'],
+                                onChanged: (value) {
+                                  if (mounted) {
+                                    setState(() {
+                                      boat['Automatic'] = value;
+                                    });
+                                    dbRef
+                                        .child("Boats")
+                                        .child(boat['id'])
+                                        .update(
+                                            {'IsAutomatic': boat['Automatic']});
+                                  }
+                                })
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              });
+        },
       ));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    width = MediaQuery.of(context).size.width;
     return Scaffold(
         body: GoogleMap(
       initialCameraPosition: CameraPosition(
