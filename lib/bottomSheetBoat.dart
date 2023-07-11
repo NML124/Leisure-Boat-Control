@@ -69,7 +69,7 @@ class __ModalBottomSheetBoatState extends State<ModalBottomSheetBoat> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
-                      "Automatic :",
+                      "Manual :",
                       style: TextStyle(fontSize: 15),
                     ),
                     Switch(
@@ -81,7 +81,7 @@ class __ModalBottomSheetBoatState extends State<ModalBottomSheetBoat> {
                           dbRef
                               .child("Boats")
                               .child(boat['id'])
-                              .update({'IsAutomatic': boat['Automatic']});
+                              .update({'IsAutomatic': !boat['Automatic']});
                         }),
                   ],
                 ),
@@ -105,7 +105,7 @@ class __ModalBottomSheetBoatState extends State<ModalBottomSheetBoat> {
                           SfSlider.vertical(
                               value: boat['DCMotorValue'].toDouble(),
                               min: 0,
-                              max: 255,
+                              max: 100,
                               enableTooltip: true,
                               showLabels: true,
                               onChanged: (value) {
