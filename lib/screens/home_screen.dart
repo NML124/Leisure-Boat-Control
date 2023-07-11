@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/place.dart';
+import '../bottomSheetBoat.dart';
 
 class Home extends StatefulWidget {
   final PlaceLocation initialLocation;
@@ -21,7 +22,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  var width;
   String selectedBoat = "";
   var boats = [];
   var ports = [];
@@ -47,6 +47,12 @@ class _HomeState extends State<Home> {
       List<String> latlng;
 
       map.forEach((child) {
+        PersistentBottomSheetController _controller;
+        var servoMotorValue =
+            double.parse(child.child("ServoMotorValue").value.toString())
+                .toInt();
+        var dcMotorValue =
+            double.parse(child.child("DCMotorValue").value.toString()).toInt();
         var location = child.child("ActualPosition").value;
         var target = child.child("Target").value;
         var speed = double.parse(child.child("ActualSpeed").value.toString());
@@ -77,6 +83,8 @@ class _HomeState extends State<Home> {
             "Orientation": orientation,
             "DesiredOrientation": desiredOrientation,
             "Speed": speed,
+            "ServoMotorValue": servoMotorValue,
+            "DCMotorValue": dcMotorValue,
             "DesiredSpeed": desiredSpeed,
             "Name": name,
             "Automatic": isAutomatic,
@@ -137,70 +145,7 @@ class _HomeState extends State<Home> {
           showModalBottomSheet(
               context: context,
               builder: (ctx) {
-                return Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Container(
-                    width: width,
-                    child: Column(
-                      children: [
-                        Text(
-                          boat["Name"],
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text("Boat DATA",
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.bold)),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(
-                              "Speed : ${boat['Speed']} rpm",
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            Text("Orientation : ${boat["Orientation"]}°",
-                                style: TextStyle(fontSize: 15)),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Automatic :",
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            Switch(
-                                value: boat['Automatic'],
-                                onChanged: (value) {
-                                  if (mounted) {
-                                    setState(() {
-                                      boat['Automatic'] = value;
-                                    });
-                                    dbRef
-                                        .child("Boats")
-                                        .child(boat['id'])
-                                        .update(
-                                            {'IsAutomatic': boat['Automatic']});
-                                  }
-                                })
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                return ModalBottomSheetBoat(boat, dbRef);
               });
         },
       ));
@@ -209,7 +154,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    width = MediaQuery.of(context).size.width;
     return Scaffold(
         body: GoogleMap(
       initialCameraPosition: CameraPosition(
